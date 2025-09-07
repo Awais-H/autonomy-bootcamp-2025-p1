@@ -32,9 +32,13 @@ class DetectBlue:
         """
         Private constructor, use create() method.
         """
-        assert class_create_private_key is DetectBlue.__create_key, "Use create() method"
+        assert class_create_private_key is DetectBlue.__create_key, (
+            "Use create() method"
+        )
 
-    def run(self, image: str, output_path: Path, return_mask: bool = False) -> None | np.ndarray:
+    def run(
+        self, image: str, output_path: Path, return_mask: bool = False
+    ) -> None | np.ndarray:
         """
         Detects blue from an image and shows the annotated result.
 
@@ -49,31 +53,31 @@ class DetectBlue:
         # ============
 
         # Convert the image's colour to HSV
-        hsv = ...
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
         # Set upper and lower bounds for colour detection, this is in HSV
-        lower_blue = ...
-        upper_blue = ...
+        lower_blue = np.array([100, 50, 50])
+        upper_blue = np.array([140, 255, 255])
 
         # Apply the threshold for the colour detection
-        mask = ...
+        mask = cv2.inRange(hsv, lower_blue, upper_blue)
 
         # Shows the detected colour from the mask
-        res = ...
+        res = cv2.bitwise_and(img, img, mask=mask)
 
         # ============
         # ↑ BOOTCAMPERS MODIFY ABOVE THIS COMMENT ↑
         # ============
 
         # Annotate the colour detections
-        contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        contours, mask = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         cv2.drawContours(img, contours, -1, (0, 255, 0), 2)
 
         # Show the annotated detection!
         cv2.imwrite(str(output_path), img)
 
         # Show res to see the result of what is being filtered in the colour detection
-        # cv2.imwrite(str(output_path), res)
+        cv2.imwrite(str(output_path), res)
 
         # This parameter is needed to run tests
         return mask if return_mask else None
@@ -100,7 +104,9 @@ class DetectRed:
         """
         assert class_create_private_key is DetectRed.__create_key, "Use create() method"
 
-    def run(self, image: str, output_path: Path, return_mask: bool = False) -> None | np.ndarray:
+    def run(
+        self, image: str, output_path: Path, return_mask: bool = False
+    ) -> None | np.ndarray:
         """
         Detects red from an image and shows the annotated result.
 
@@ -115,21 +121,23 @@ class DetectRed:
         # ============
 
         # Convert the image's colour to HSV
-        hsv = ...
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
         # Set upper and lower bounds for colour detection, this is in HSV
-        lower_red = ...
-        upper_red = ...
+        lower_red1 = np.array([0, 50, 50])
+        upper_red1 = np.array([10, 255, 255])
+        lower_red2 = np.array([170, 50, 50])
+        upper_red2 = np.array([180, 255, 255])
 
-        # Apply the threshold for the colour detection
-        mask = ...
-
+        mask1 = cv2.inRange(hsv, lower_red1, upper_red1)
+        mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
+        mask = cv2.bitwise_or(mask1, mask2)
         # Shows the detected colour from the mask
-        res = ...
+        res = cv2.bitwise_and(img, img, mask=mask)
 
         # Annotate the colour detections
         # replace the '_' parameter with the appropiate variable
-        contours, _ = cv2.findContours(_, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        contours, mask = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         # ============
         # ↑ BOOTCAMPERS MODIFY ABOVE THIS COMMENT ↑
         # ============
@@ -140,7 +148,7 @@ class DetectRed:
         cv2.imwrite(str(output_path), img)
 
         # Show res to see the result of what is being filtered in the colour detection
-        # cv2.imwrite(str(output_path), res)
+        cv2.imwrite(str(output_path), res)
 
         # ============
         # ↓ BOOTCAMPERS MODIFY BELOW THIS COMMENT ↓
@@ -148,7 +156,7 @@ class DetectRed:
 
         # Include the "return_mask" parameter if statement here, similar to how it is implemented in DetectBlue
         # Tests will not pass if this isn't included!
-
+        return mask if return_mask else None
         # ============
         # ↑ BOOTCAMPERS MODIFY ABOVE THIS COMMENT ↑
         # ============
